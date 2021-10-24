@@ -1,13 +1,14 @@
 module HW1.T7 where
 
-import Data.Semigroup
-import Data.Monoid hiding ((<>))
+import Data.Semigroup hiding (Last)
+import Data.Monoid hiding ((<>), Last)
 
 data ListPlus a = a :+ ListPlus a | Last a
 infixr 5 :+
 
---instance Semigroup (ListPlus a) where
-  
+instance Semigroup (ListPlus a) where
+  (<>) (Last x) y = x :+ y
+  (<>) (x :+ y) z = x :+ ((<>) y z)
 
 data Inclusive a b = This a
                    | That b
