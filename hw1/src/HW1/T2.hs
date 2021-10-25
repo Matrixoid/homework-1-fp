@@ -1,65 +1,59 @@
-module HW1.T2 
-  ( N(..)
-  , nplus
-  , nmult
-  , nsub
-  , ncmp
-  , nFromNatural
-  , nToNum
-  , nEven
-  , nOdd
-  , ndiv
-  , nmod
-  ) where
-
+module HW1.T2 where
 import Numeric.Natural
 
 data N = Z
-       | S N
-       deriving(Show)
+       | S N --реализация суммы
+       deriving (Show, Eq)
 
 nplus :: N -> N -> N
-nplus Z b = b
-nplus (S a) b = S (nplus a b)
+nplus n Z = n
+nplus (S n1) (S n2) = nplus (S (S n1)) n2
 
 nmult :: N -> N -> N
-nmult Z _     = Z
-nmult (S a) b = nplus (nmult a b) b
+nmult n Z = Z
+nmult n1 (S n2) = nplus n1 (nmult n1 n2)
 
 nsub :: N -> N -> Maybe N
-nsub a Z         = Just a
-nsub Z _         = Nothing
-nsub (S a) (S b) = nsub a b
+nsub Z (S n) = Nothing
+nsub (S n1) (S n2) = nsub n1 n2
+nsub n Z = Just n
 
 ncmp :: N -> N -> Ordering
-ncmp Z Z         = EQ
-ncmp _ Z         = GT
-ncmp Z _         = LT
-ncmp (S a) (S b) = ncmp a b
+ncmp Z (S n) = LT
+ncmp (S n1) (S n2) = ncmp n1 n2
+ncmp (S n) Z = GT
+ncmp Z Z = EQ
 
 nFromNatural :: Natural -> N
 nFromNatural 0 = Z
 nFromNatural n = S (nFromNatural (n - 1))
 
 nToNum :: Num a => N -> a
-nToNum Z     = 0
-nToNum (S a) = nToNum a + 1
+nToNum Z = 0
+nToNum (S n) = (+) 1 (nToNum n)
 
-nEven, nOdd :: N -> Bool
-nEven Z     = True
-nEven (S a) = not (nEven a)
-nOdd a      = not (nEven a)
+nEven, nOdd :: N -> Bool 
+nEven Z = True
+nEven (S n) = not (nEven n) 
+nOdd Z = False
+nOdd (S n) = not (nOdd n) 
+
+fromJust :: Maybe a -> a
+fromJust (Just n) = n
 
 ndiv :: N -> N -> N
-ndiv Z _               = Z
-ndiv _ Z               = error "divizion by zero"
-ndiv (S a) b
-  | ncmp (S a) b == LT = Z
-  | otherwise          = S (ndiv (fromJust (nsub (S a) b)) b)
-                          where
-                            fromJust (Just a) = a
+ndiv n Z = error "dividing by zero"
+ndiv n1 n2 =
+  if ncmp n1 n2 == LT
+  then Z
+  else S (ndiv (fromJust (nsub n1 n2)) n2)
 
 nmod :: N -> N -> N
-nmod a b = fromJust (nsub a (nmult (ndiv a b) b))
-             where
-                fromJust (Just a) = a
+nmod n1 n2 = fromJust(nsub n1 (nmult n2 (ndiv n1 n2)))
+
+
+
+
+
+
+
