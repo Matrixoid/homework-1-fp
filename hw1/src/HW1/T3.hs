@@ -15,12 +15,12 @@ data Tree a = Leaf
 mkbranch :: Tree a -> a -> Tree a -> Tree a
 mkbranch Leaf element Leaf = Branch 1 Leaf element Leaf
 mkbranch (Branch n1 left1 element1 right1) element Leaf
-  | tdepth tree1 > 2 = Branch (n1 + 1) left1 element1 (mkbranch right1 element Leaf)
+  | tdepth tree1 >= 2 = Branch (n1 + 1) left1 element1 (mkbranch right1 element Leaf)
   | otherwise        = Branch (n1 + 1) tree1 element Leaf
   where
     tree1 = Branch n1 left1 element1 right1
 mkbranch Leaf element (Branch n2 left2 element2 right2)
-  | tdepth tree2 > 2 = Branch (n2 + 1) (mkbranch Leaf element left2) element2 right2
+  | tdepth tree2 >= 2 = Branch (n2 + 1) (mkbranch Leaf element left2) element2 right2
   | otherwise        = Branch (n2 + 1) Leaf element tree2
   where
     tree2 = Branch n2 left2 element2 right2
