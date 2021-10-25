@@ -55,8 +55,8 @@ tinsert :: Ord a => a -> Tree a -> Tree a
 tinsert element Leaf = mkbranch Leaf element Leaf
 tinsert elemInsert (Branch n left element right) = if not (tmember elemInsert (Branch n left element right))
                                                    then if elemInsert < element
-                                                        then Branch (n + 1) (tinsert elemInsert left) element right
-                                                        else Branch (n + 1) left element (tinsert elemInsert right)
+                                                        then mkbranch (tinsert elemInsert left) element right
+                                                        else mkbranch left element (tinsert elemInsert right)
                                                    else Branch n left element right
 
 tFromList :: Ord a => [a] -> Tree a
