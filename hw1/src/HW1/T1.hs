@@ -1,44 +1,42 @@
-module HW1.T1 
-    ( Day(..)
-    , nextDay
-    , afterDays
-    , isWeekend
-    , daysToParty
-    ) where
+module HW1.T1
+   ( Day(..)
+   , nextDay
+   , afterDays
+   , isWeekend
+   , daysToParty
+   ) where
+
 import Numeric.Natural
 
-data Day = Monday 
-         | Tuesday 
-         | Wednesday 
-         | Thursday 
-         | Friday 
-         | Saturday 
-         | Sunday 
-         deriving Show
+data Day = Monday
+         | Tuesday
+         | Wednesday
+         | Thursday
+         | Friday
+         | Saturday
+         | Sunday
+         deriving (Show, Eq, Ord)
 
 nextDay :: Day -> Day
-nextDay Sunday = Monday
-nextDay Monday = Tuesday
-nextDay Tuesday = Wednesday
-nextDay Wednesday = Thursday
-nextDay Thursday = Friday
-nextDay Friday = Saturday
-nextDay Saturday = Sunday
-
+nextDay day = case day of
+    Monday    -> Tuesday
+    Tuesday   -> Wednesday
+    Wednesday -> Thursday
+    Thursday  -> Friday
+    Friday    -> Saturday
+    Saturday  -> Sunday
+    Sunday    -> Monday
 
 afterDays :: Natural -> Day -> Day
-afterDays 0 day = day
-afterDays n day = nextDay (afterDays (mod n 7 - 1) day)
+afterDays count day
+  | mod count 7 == 0 = day
+  | count > 7  = nextDay (afterDays (mod count 7 - 1) day)
+  | count > 0  = nextDay (afterDays (count - 1) day)
 
 isWeekend :: Day -> Bool
-isWeekend Sunday = True
-isWeekend Monday = False
-isWeekend Tuesday = False
-isWeekend Wednesday = False
-isWeekend Thursday = False
-isWeekend Friday = False
-isWeekend Saturday = True
+isWeekend day = (day == Saturday) || (day == Sunday)
 
 daysToParty :: Day -> Natural
-daysToParty Friday = 0
-daysToParty d = (+) 1 (daysToParty (nextDay d))
+daysToParty day
+  | day == Friday = 0
+  | otherwise     = daysToParty (nextDay day) + 1

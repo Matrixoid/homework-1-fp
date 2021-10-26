@@ -1,70 +1,70 @@
-module HW1.T3 where
+module HW1.T3 
+  ( Tree(..)
+  , mkbranch
+  , tsize
+  , tdepth
+  , tmember
+  , tinsert
+  , tFromList
+  ) where
 
-data Tree a = Leaf 
+data Tree a = Leaf
             | Branch Int (Tree a) a (Tree a)
-            deriving (Show)
+            deriving(Show, Eq)
+
+mkbranch :: Tree a -> a -> Tree a -> Tree a
+mkbranch Leaf element Leaf = Branch 1 Leaf element Leaf
+mkbranch (Branch n1 left1 element1 right1) element Leaf
+  | tdepth tree1 >= 2 = Branch (n1 + 1) left1 element1 (mkbranch right1 element Leaf)
+  | otherwise        = Branch (n1 + 1) tree1 element Leaf
+  where
+    tree1 = Branch n1 left1 element1 right1
+mkbranch Leaf element (Branch n2 left2 element2 right2)
+  | tdepth tree2 >= 2 = Branch (n2 + 1) (mkbranch Leaf element left2) element2 right2
+  | otherwise        = Branch (n2 + 1) Leaf element tree2
+  where
+    tree2 = Branch n2 left2 element2 right2
+mkbranch (Branch n1 left1 element1 (Branch nl leftl elementl rightl))
+         element 
+         (Branch n2 (Branch nr leftr elementr rightr) element2 right2)
+  | tdepth tree1 - tdepth tree2 >= 2 &&
+    tdepth right1 <= tdepth left1       = Branch tSize left1 element1  mkbranchRight
+  | tdepth tree1 - tdepth tree2 >= 2 &&
+    tdepth right1 > tdepth left1        = Branch tSize (Branch (tsize left1 + tsize leftl + 1) left1 element1 leftl) element (Branch (tsize rightl + tsize tree2 + 1) rightl element tree2)
+  | tdepth tree1 - tdepth tree2 <= (-2) = Branch tSize mkbranchLeft element2 right2
+  | otherwise                           = Branch tSize tree1 element tree2
+  where
+    right1        = Branch nr leftr elementr rightr
+    left2         = Branch nl leftl elementl rightl
+    tree1         = Branch n1 left1 element1 right1
+    tree2         = Branch n2 left2 element2 right2
+    mkbranchLeft  = mkbranch tree1 element left2
+    mkbranchRight = mkbranch right1 element tree2
+    tSize = n1 + n2 + 1
+--mkbranch left element right = Branch (tsize left + tsize right + 1) left element right
 
 tsize :: Tree a -> Int
-tsize Leaf = 0
-tsize (Branch n left cur right) = n
+tsize Leaf             = 0
+tsize (Branch n _ _ _) = n
 
 tdepth :: Tree a -> Int
-tdepth Leaf = 0
-tdepth (Branch n left cur right) = (+) 1 (max (tdepth left) (tdepth right))
+tdepth Leaf                    = 0
+tdepth (Branch _ left _ right) = max (tdepth left) (tdepth right) + 1
 
 tmember :: Ord a => a -> Tree a -> Bool
-tmember a Leaf = False
-tmember a (Branch n left cur right) 
-  = if a == cur
-    then True
-    else if a > cur
-         then tmember a right
-         else tmember a left
-                                                
-
-mkBranch :: Tree a -> a -> Tree a -> Tree a
-mkBranch Leaf cur Leaf = Branch 1 Leaf cur Leaf
-mkBranch (Branch n left cur1 Leaf) cur2 Leaf 
-  = if tdepth tree < 2
-    then Branch ((+) 1 n) tree cur2 Leaf
-    else Branch ((+) 1 n) left cur1 (mkBranch Leaf cur2 Leaf)
-    where
-      tree = Branch n left cur1 Leaf
-mkBranch (Branch n left cur1 (Branch n3 left3 cur3 right3)) cur2 Leaf 
-  = if tdepth tree < 2
-    then Branch ((+) 1 n) tree cur2 Leaf
-    else if (tdepth left >= tdepth right) 
-         then Branch ((+) 1 n) left cur1 (mkBranch right cur2 Leaf)
-         else Branch ((+) 1 n) (mkBranch left cur1 left3) cur3 (mkBranch right3 cur2 Leaf)
-    where
-      right = Branch n3 left3 cur3 right3
-      tree = Branch n left cur1 right
-mkBranch Leaf cur2 (Branch n left cur1 right) 
-        = if (tdepth tree < 2)
-          then Branch ((+) 1 n) Leaf cur2 tree
-          else Branch ((+) 1 n) (mkBranch Leaf cur2 left) cur1 right
-          where
-            tree = (Branch n left cur1 right)
-mkBranch (Branch n1 left1 cur1 right1) cur3 (Branch n2 left2 cur2 right2) 
-  = if (abs((tdepth tree1) - (tdepth tree2)) < 2)
-    then Branch ((+) 1 ((+) (tsize tree1) (tsize tree2))) tree1 cur3 tree2
-    else if ((tdepth tree1) - (tdepth tree2) >= 2)
-         then Branch ((+) 1 ((+) n1 n2)) left1 cur1 (mkBranch right1 cur3 tree2)
-         else Branch ((+) 1 ((+) n1 n2)) (mkBranch tree1 cur3 left2) cur2 right2
-         where 
-           tree1 = Branch n1 left1 cur1 right1
-           tree2 = Branch n2 left2 cur2 right2
-                                 
+tmember _ Leaf           = False
+tmember elemSearch (Branch _ left element right)
+  | elemSearch < element = tmember elemSearch left
+  | elemSearch > element = tmember elemSearch right
+  | otherwise            = True
 
 tinsert :: Ord a => a -> Tree a -> Tree a
-tinsert a Leaf = mkBranch Leaf a Leaf
-tinsert a (Branch n left cur right) 
-  = if tmember a (Branch n left cur right) 
-    then Branch n left cur right
-    else if a < cur
-         then mkBranch (tinsert a left) cur right
-         else mkBranch left cur (tinsert a right)
+tinsert element Leaf = mkbranch Leaf element Leaf
+tinsert elemInsert (Branch n left element right) = if not (tmember elemInsert (Branch n left element right))
+                                                   then if elemInsert < element
+                                                        then mkbranch (tinsert elemInsert left) element right
+                                                        else mkbranch left element (tinsert elemInsert right)
+                                                   else mkbranch left element right
 
 tFromList :: Ord a => [a] -> Tree a
-tFromList [] = Leaf
-tFromList (x : tail) = tinsert x (tFromList tail) 
+tFromList = foldr tinsert Leaf
