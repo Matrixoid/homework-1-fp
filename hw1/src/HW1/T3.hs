@@ -18,7 +18,7 @@ mkbranch (Branch n1 left1 element1 Leaf)
           element
          Leaf
   | tdepth tree1 >= 2 &&
-    tdepth left1 >= 0          = Branch tSize left1 element1 (Branch 1 Leaf element Leaf)
+    tdepth left1 >= 0          = Branch tSize left1 element1 (mkbranch Leaf element Leaf)
   | otherwise                  = Branch tSize tree1 element Leaf
   where
     tree1 = Branch n1 left1 element1 Leaf
@@ -27,7 +27,7 @@ mkbranch Leaf
           element
          (Branch n2 Leaf element2 right2)
   | tdepth tree2 >= 2 &&
-    0 <= tdepth right2          = Branch tSize (Branch 1 Leaf element Leaf) element2 right2
+    0 <= tdepth right2          = Branch tSize (mkbranch Leaf element Leaf) element2 right2
   | otherwise                              = Branch tSize Leaf element tree2
   where
     tree2 = Branch n2 Leaf element2 right2
@@ -36,9 +36,9 @@ mkbranch (Branch n1 left1 element1 (Branch nl leftl elementl rightl))
           element
          Leaf
   | tdepth tree1 >= 2 &&
-    tdepth left1 >= tdepth right1          = Branch tSize left1 element1 (Branch (tsize right1 + 1) right1 element Leaf)
+    tdepth left1 >= tdepth right1          = Branch tSize left1 element1 (mkbranch right1 element Leaf)
   | tdepth tree1 >= 2 &&
-    tdepth left1 < tdepth right1           = Branch tSize (Branch (tsize left1 + tsize leftl + 1) left1 element1 leftl) elementl (Branch (tsize rightl + 1) rightl element Leaf)
+    tdepth left1 < tdepth right1           = Branch tSize (mkbranch left1 element1 leftl) elementl (mkbranch rightl element Leaf)
   | otherwise                              = Branch tSize tree1 element Leaf
   where
     tree1 = Branch n1 left1 element1 right1
@@ -48,9 +48,9 @@ mkbranch Leaf
           element
          (Branch n2 (Branch nr leftr elementr rightr) element2 right2)
   | tdepth tree2 >= 2 &&
-    tdepth left2 <= tdepth right2          = Branch tSize (Branch (tsize left2 + 1) Leaf element left2) element2 right2
+    tdepth left2 <= tdepth right2          = Branch tSize (mkbranch Leaf element left2) element2 right2
   | tdepth tree2 >= 2 &&
-    tdepth left2 > tdepth right2           = Branch tSize (Branch (tsize leftr + 1) Leaf element leftr) elementr (Branch (tsize rightr + tsize right2 + 1) rightr element2 right2)
+    tdepth left2 > tdepth right2           = Branch tSize (mkbranch Leaf element leftr) elementr (mkbranch rightr element2 right2)
   | otherwise                              = Branch tSize Leaf element tree2
   where
     tree2 = Branch n2 left2 element2 right2
@@ -60,9 +60,9 @@ mkbranch (Branch n1 left1 element1 Leaf)
           element
          (Branch n2 Leaf element2 right2)
   | tdepth tree1 - tdepth tree2 <= (-2) &&
-    0 <= tdepth right2          = Branch tSize (Branch (tsize tree1 + 1) tree1 element Leaf) element2 right2
+    0 <= tdepth right2          = Branch tSize (mkbranch tree1 element Leaf) element2 right2
   | tdepth tree1 - tdepth tree2 >= 2 &&
-    tdepth left1 >= 0          = Branch tSize left1 element1 (Branch (tsize tree2 + 1) Leaf element tree2)
+    tdepth left1 >= 0          = Branch tSize left1 element1 (mkbranch Leaf element tree2)
   | otherwise                              = Branch tSize tree1 element tree2
   where
     tree1 = Branch n1 left1 element1 Leaf
@@ -72,11 +72,11 @@ mkbranch (Branch n1 left1 element1 (Branch nl leftl elementl rightl))
           element
          (Branch n2 Leaf element2 right2)
   | tdepth tree1 - tdepth tree2 <= (-2) &&
-    0 <= tdepth right2          = Branch tSize (Branch (tsize tree1 + 1) tree1 element Leaf) element2 right2
+    0 <= tdepth right2          = Branch tSize (mkbranch tree1 element Leaf) element2 right2
   | tdepth tree1 - tdepth tree2 >= 2 &&
-    tdepth left1 >= tdepth right1          = Branch tSize left1 element1 (Branch (tsize right1 + tsize tree2 + 1) right1 element tree2)
+    tdepth left1 >= tdepth right1          = Branch tSize left1 element1 (mkbranch right1 element tree2)
   | tdepth tree1 - tdepth tree2 >= 2 &&
-    tdepth left1 < tdepth right1           = Branch tSize (Branch (tsize left1 + tsize leftl + 1) left1 element1 leftl) elementl (Branch (tsize rightl + tsize tree2 + 1) rightl element tree2)
+    tdepth left1 < tdepth right1           = Branch tSize (mkbranch left1 element1 leftl) elementl (mkbranch rightl element tree2)
   | otherwise                              = Branch tSize tree1 element tree2
   where
     tree1 = Branch n1 left1 element1 right1
@@ -87,11 +87,11 @@ mkbranch (Branch n1 left1 element1 Leaf)
           element
          (Branch n2 (Branch nr leftr elementr rightr) element2 right2)
   | tdepth tree1 - tdepth tree2 <= (-2) &&
-    tdepth left2 <= tdepth right2          = Branch tSize (Branch (tsize tree1 + tsize left2 + 1) tree1 element left2) element2 right2
+    tdepth left2 <= tdepth right2          = Branch tSize (mkbranch tree1 element left2) element2 right2
   | tdepth tree1 - tdepth tree2 <= (-2) &&
-    tdepth left2 > tdepth right2           = Branch tSize (Branch (tsize tree1 + tsize leftr + 1) tree1 element leftr) elementr (Branch (tsize rightr + tsize right2 + 1) rightr element2 right2)
+    tdepth left2 > tdepth right2           = Branch tSize (mkbranch tree1 element leftr) elementr (mkbranch rightr element2 right2)
   | tdepth tree1 - tdepth tree2 >= 2 &&
-    tdepth left1 >= 0          = Branch tSize left1 element1 (Branch (tsize tree2 + 1) Leaf element tree2)
+    tdepth left1 >= 0                      = Branch tSize left1 element1 (mkbranch Leaf element tree2)
   | otherwise                              = Branch tSize tree1 element tree2
   where
     tree1 = Branch n1 left1 element1 Leaf
@@ -102,13 +102,13 @@ mkbranch (Branch n1 left1 element1 (Branch nl leftl elementl rightl))
           element
          (Branch n2 (Branch nr leftr elementr rightr) element2 right2)
   | tdepth tree1 - tdepth tree2 <= (-2) &&
-    tdepth left2 <= tdepth right2          = Branch tSize (Branch (tsize tree1 + tsize left2 + 1) tree1 element left2) element2 right2
+    tdepth left2 <= tdepth right2          = Branch tSize (mkbranch tree1 element left2) element2 right2
   | tdepth tree1 - tdepth tree2 <= (-2) &&
-    tdepth left2 > tdepth right2           = Branch tSize (Branch (tsize tree1 + tsize leftr + 1) tree1 element leftr) elementr (Branch (tsize rightr + tsize right2 + 1) rightr element2 right2)
+    tdepth left2 > tdepth right2           = Branch tSize (mkbranch tree1 element leftr) elementr (mkbranch rightr element2 right2)
   | tdepth tree1 - tdepth tree2 >= 2 &&
-    tdepth left1 >= tdepth right1          = Branch tSize left1 element1 (Branch (tsize right1 + tsize tree2 + 1) right1 element tree2)
+    tdepth left1 >= tdepth right1          = Branch tSize left1 element1 (mkbranch right1 element tree2)
   | tdepth tree1 - tdepth tree2 >= 2 &&
-    tdepth left1 < tdepth right1           = Branch tSize (Branch (tsize left1 + tsize leftl + 1) left1 element1 leftl) elementl (Branch (tsize rightl + tsize tree2 + 1) rightl element tree2)
+    tdepth left1 < tdepth right1           = Branch tSize (mkbranch left1 element1 leftl) elementl (mkbranch rightl element tree2)
   | otherwise                              = Branch tSize tree1 element tree2
   where
     tree1 = Branch n1 left1 element1 right1

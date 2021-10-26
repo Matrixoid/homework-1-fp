@@ -41,3 +41,7 @@ newtype Fun a = F (a -> a)
 
 instance Semigroup (Fun a) where
   (<>) (F fun1) (F fun2) = F (fun1 . fun2)
+  
+instance Monoid (Fun a) where
+  mempty = F id
+  
