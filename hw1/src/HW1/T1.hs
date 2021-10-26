@@ -30,8 +30,8 @@ nextDay day = case day of
 afterDays :: Natural -> Day -> Day
 afterDays count day
   | mod count 7 == 0 = day
-  | count > 7  = nextDay (afterDays (mod count 7 - 1) day)
-  | count > 0  = nextDay (afterDays (count - 1) day)
+  | count > 7        = nextDay (afterDays (mod count 7 - 1) day)
+  | count > 0        = nextDay (afterDays (count - 1) day)
 
 isWeekend :: Day -> Bool
 isWeekend day = (day == Saturday) || (day == Sunday)

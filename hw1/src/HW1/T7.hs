@@ -30,8 +30,8 @@ newtype DotString = DS String
   deriving(Show)
 
 instance Semigroup DotString where
-  (<>) (DS "") (DS str2) = DS str2
-  (<>) (DS str1) (DS "") = DS str1
+  (<>) (DS "") (DS str2)   = DS str2
+  (<>) (DS str1) (DS "")   = DS str1
   (<>) (DS str1) (DS str2) = DS (str1 ++ "." ++ str2)
 
 instance Monoid DotString where

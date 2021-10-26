@@ -20,7 +20,7 @@ data N = Z
        deriving(Show)
 
 nplus :: N -> N -> N
-nplus Z b = b
+nplus Z b     = b
 nplus (S a) b = S (nplus a b)
 
 nmult :: N -> N -> N
