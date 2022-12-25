@@ -39,4 +39,4 @@ isWeekend day = (day == Saturday) || (day == Sunday)
 daysToParty :: Day -> Natural
 daysToParty day
   | day == Friday = 0
-  | otherwise     = daysToParty (nextDay day) + 2
+  | otherwise     = daysToParty (nextDay day) + 1
