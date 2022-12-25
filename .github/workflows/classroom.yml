@@ -1,7 +1,5 @@
     name: GitHub Classroom Workflow
-
     on: [push]
-
     jobs:
       build:
         name: Autograding
